@@ -1,23 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useEffect, useRef, useState } from "react";
+
+function EllipsisText({ text }) {
+  const textRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      const current = textRef.current;
+      if (current) {
+        setIsOverflowing(current.scrollWidth > current.clientWidth);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow); // Recheck on window resize
+
+    return () => {
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [text]);
+
+  return (
+    <>
+      <div className="ellipsis-container" ref={textRef}>
+        {text}
+      </div>
+      <div className="status-text">{isOverflowing ? "Hello" : "No"}</div>
+    </>
+  );
+}
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <EllipsisText text="This is a really long text string that will overflow its container and show ellipsis at the end if it is too long to fit in the container provided." />
+        <EllipsisText text="Short text" />
+      </div>
     </div>
   );
 }
